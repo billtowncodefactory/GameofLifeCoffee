@@ -27,7 +27,7 @@
 
   <script type="text/coffeescript">
 
-    world = [
+    cur_gen = [
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
       [0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]
       [0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0]
@@ -50,21 +50,88 @@
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     ]
 
+    create_generation = ->
+      [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
+        [0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]
+        [0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0]
+        [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0]
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0]
+        [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0]
+        [0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0]
+        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0]
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0]
+        [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0]
+        [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0]
+        [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0]
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0]
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      ]
+
+    max_height = 19
+    max_width = 19
+
+    alive_at = (col, row) ->
+      if col < 0 or col > max_width or row < 0 or row > max_height
+        false
+      else
+        cur_gen[row][col] == 1
+
+    neighbors_at = (col, row) ->
+      n = 0
+      n += 1 if alive_at(col - 1, row)
+      n += 1 if alive_at(col - 1, row - 1)
+      n += 1 if alive_at(col, row - 1)
+      n += 1 if alive_at(col + 1, row - 1)
+      n += 1 if alive_at(col + 1, row)
+      n += 1 if alive_at(col + 1, row + 1)
+      n += 1 if alive_at(col, row + 1)
+      n += 1 if alive_at(col - 1, row + 1)
+      n
+
+    evolve = ->
+      next_gen = create_generation()
+      for row in [0..max_height]
+        for col in [0..max_width]
+          n = neighbors_at(col, row)
+          if alive_at(col, row)
+            if n >= 2 and n <= 3
+              next_gen[row][col] = 1
+            else
+              next_gen[row][col] = 0
+          else
+            if n == 3
+              next_gen[row][col] = 1
+            else
+              next_gen[row][col] = 0
+      cur_gen = next_gen
+
     setup = ->
-      for row in [0..19]
-        for col in [0..19]
-          $('#world').append('<div id="cell-' + col + '-' + row + '"></div>');
+      for row in [0..max_height]
+        for col in [0..max_width]
+          $('#world').append('<div id="cell-' + col + '-' + row + '"></div>')
 
     display = ->
-      for row in [0..19]
-        for col in [0..19]
-          if world[row][col] == 1
-            $('#cell-' + col + '-' + row).addClass('alive')
+      for row in [0..max_height]
+        for col in [0..max_width]
+          if alive_at(col, row)
+            $('#cell-' + col + '-' + row).addClass('alive').removeClass('dead')
           else
-            $('#cell-' + col + '-' + row).addClass('dead')
+            $('#cell-' + col + '-' + row).addClass('dead').removeClass('alive')
+
+    tick = ->
+      evolve()
+      display()
 
     setup()
-    display()
+    tick()
+    setInterval(tick, 2000)
 
   </script>
 </head>
